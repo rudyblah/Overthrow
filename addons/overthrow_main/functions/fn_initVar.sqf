@@ -52,8 +52,6 @@ OT_tutorialMissions pushback (compileFinal preprocessFileLineNumbers "\overthrow
 OT_NATO_HQ_garrisonPos = [];
 OT_NATO_HQ_garrisonDir = 0;
 
-OT_QRFstart = nil;
-
 // Load mission data
 call compile preprocessFileLineNumbers "data\names.sqf";
 call compile preprocessFileLineNumbers "data\towns.sqf";
@@ -156,7 +154,7 @@ OT_NATOwait = 500; //Half the Average time between NATO orders
 OT_CRIMwait = 500; //Half the Average time between crim changes
 OT_jobWait = 60;
 
-OT_Resources = ["OT_Wood","OT_Steel","OT_Plastic","OT_Sugarcane","OT_Sugar","OT_Fertilizer","OT_Lumber","OT_Wine","OT_Grapes","OT_Olives"];
+OT_Resources = ["OT_Wood","OT_Steel","OT_Plastic","OT_Sugarcane","OT_Sugar","OT_Fertilizer"];
 
 OT_item_CargoContainer = "B_Slingload_01_Cargo_F";
 
@@ -176,7 +174,7 @@ OT_item_DefaultBlueprints = [];
 OT_itemCategoryDefinitions = [
     ["General",["ACE_fieldDressing","Banana","Map","ToolKit","Compass","ACE_EarPlugs","Watch","Radio","Compass","ACE_Spraypaint","Altimiter","MapTools","Binocular"]],
     ["Pharmacy",["Dressing","Bandage","morphine","adenosine","atropine","ACE_EarPlugs","epinephrine","bodyBag","quikclot","salineIV","bloodIV","plasmaIV","personalAidKit","surgicalKit","tourniquet"]],
-    ["Electronics",["Rangefinder","Cellphone","Radio","Watch","GPS","monitor","DAGR","_dagr","Battery","ATragMX","ACE_Flashlight","I_UavTerminal"]],
+    ["Electronics",["Rangefinder","Cellphone","Radio","Watch","GPS","monitor","DAGR","_dagr","Battery","ATragMX","ACE_Flashlight","I_UavTerminal","@ACRE_PRC117F","@ACRE_PRC343","@ACRE_PRC152"]],
     ["Hardware",["Tool","CableTie","ACE_Spraypaint","wirecutter","ACE_rope"]],
     ["Surplus",["Rangefinder","Binocular","Compass","RangeCard","RangeTable","defusalKit","SpottingScope","ACE_Vector","ACE_Yardage"]]
 ];
@@ -227,7 +225,6 @@ if(OT_hasTFAR) then {
 
 if (isServer) then {
 	cost setVariable ["OT_Wood",[5,0,0,0],true];
-	cost setVariable ["OT_Lumber",[8,0,0,0],true];
 	cost setVariable ["OT_Steel",[25,0,0,0],true];
 	cost setVariable ["OT_Plastic",[40,0,0,0],true];
 	cost setVariable ["OT_Sugarcane",[5,0,0,0],true];
@@ -310,8 +307,6 @@ if(isServer) then {
 		cost setVariable[_x select 0,_x select 1, true];
 	}forEach(OT_priceData);
 	OT_priceData = []; //free memory
-
-	call compile preprocessFileLineNumbers "\overthrow_main\data\gangnames.sqf";
 };
 
 private _allVehs = "
@@ -319,7 +314,7 @@ private _allVehs = "
     &&
 	{ (getArray ( _x >> ""threat"" ) select 0) < 0.5}
 	&&
-    { (toLower getText ( _x >> ""vehicleClass"" ) isEqualTo ""car"") || (toLower getText ( _x >> ""vehicleClass"" ) isEqualTo ""support"")}
+    { (getText ( _x >> ""vehicleClass"" ) isEqualTo ""Car"") || (getText ( _x >> ""vehicleClass"" ) isEqualTo ""Support"")}
 	&&
     { (getText ( _x >> ""faction"" ) isEqualTo ""CIV_F"") or
      (getText ( _x >> ""faction"" ) isEqualTo ""IND_F"")})
@@ -527,7 +522,6 @@ OT_allBLULaunchers = [];
 OT_allBLUPistols = [];
 OT_allBLUVehicles = [];
 OT_allBLUOffensiveVehicles = [];
-OT_allBLURifleMagazines = [];
 
 {
 	private _name = configName _x;
@@ -594,17 +588,8 @@ OT_allBLURifleMagazines = [];
 								if(_itemType isEqualTo "MachineGun") exitWith {OT_allBLUMachineGuns pushBackUnique _base};
 								if((_this select [0,7]) == "srifle_" || (_this isKindOf ["Rifle_Long_Base_F", configFile >> "CfgWeapons"])) exitWith {OT_allBLUSniperRifles pushBackUnique _base};
 								if((_this find "_GL_") > -1) exitWith {OT_allBLUGLRifles pushBackUnique _base};
-								private _events = "" configClasses (configFile >> "CfgWeapons" >> _base >> "Eventhandlers");
-								_add = true;
-								{
-									private _n = configName _x;
-									if(_n isEqualTo "RHS_BoltAction") exitWith {_add = false}; //ignore RHS bolt-action rifles
-								}foreach(_events);
-								if(_add && _mass < 61) exitWith {OT_allBLUSMG pushBackUnique _base};
-								if(_add) then {
-									OT_allBLURifles pushBackUnique _base;
-									OT_allBLURifleMagazines = OT_allBLURifleMagazines + getArray(configFile >> "CfgWeapons" >> _base >> "WeaponSlotsInfo" >> "magazines");
-								};
+								if(_mass < 61) exitWith {OT_allBLUSMG pushBackUnique _base};
+								OT_allBLURifles pushBackUnique _base
 							};
 						};
 						if(_base isKindOf ["Launcher", configFile >> "CfgWeapons"]) then {OT_allBLULaunchers pushBackUnique _base};
@@ -765,21 +750,17 @@ OT_allLegalClothing = [];
 	private _name = configName _x;
 	private _short = getText (configFile >> "CfgWeapons" >> _name >> "descriptionShort");
 	private _supply = getText(configfile >> "CfgWeapons" >> _name >> "ItemInfo" >> "containerClass");
-	private _mass = getNumber(configfile >> "CfgWeapons" >> _name >> "ItemInfo" >> "mass");
 	private _carry = getNumber(configfile >> "CfgVehicles" >> _supply >> "maximumLoad");
-	private _cost = round(_mass * 4);
+	private _cost = round(_carry * 0.5);
 
+	OT_allClothing pushback _name;
 	private _c = _name splitString "_";
-	if(_c select (count _c - 1) != "VR") then {
-		OT_allClothing pushback _name;
-
-		private _side = _c select 1;
-		if((_name == "V_RebreatherIA" || _side == "C" || _side == "I") && (_c select (count _c - 1) != "VR")) then {
-			OT_allLegalClothing pushback _name;
-		};
-		if (isServer && isNil {cost getVariable _name}) then {
-			cost setVariable [_name,[_cost,0,0,1],true];
-		};
+	private _side = _c select 1;
+	if((_name == "V_RebreatherIA" || _side == "C" || _side == "I") && (_c select (count _c - 1) != "VR")) then {
+		OT_allLegalClothing pushback _name;
+	};
+	if (isServer && isNil {cost getVariable _name}) then {
+		cost setVariable [_name,[_cost,0,0,1],true];
 	};
 } foreach (_allUniforms);
 
@@ -865,7 +846,7 @@ if(isServer) then {
 			private _clsCfg = _cfgVeh >> _name;
 			private _cost = getNumber (_clsCfg >> "armor") * _multiply;
 			private _steel = round(getNumber (_clsCfg >> "armor") * 0.5);
-			private _numturrets = count("!((configName _x) select [0,5] == ""Cargo"") && !((count getArray (_x >> ""magazines"")) isEqualTo 0)" configClasses(_clsCfg >> "Turrets"));
+			private _numturrets = count("!((configName _x) select [0,5] == ""Cargo"")" configClasses(_clsCfg >> "Turrets"));
 			private _plastic = 2;
 			if(_numturrets > 0) then {
 				_cost = _cost + (_numturrets * _cost * 10);
@@ -952,7 +933,7 @@ if(isServer) then {
 OT_staticMachineGuns = ["I_HMG_01_F","I_HMG_01_high_F","I_HMG_01_A_F","O_HMG_01_F","O_HMG_01_high_F","O_HMG_01_A_F","B_HMG_01_F","B_HMG_01_high_F","B_HMG_01_A_F"];
 OT_staticWeapons = ["I_Mortar_01_F","I_static_AA_F","I_static_AT_F","I_GMG_01_F","I_GMG_01_high_F","I_GMG_01_A_F","I_HMG_01_F","I_HMG_01_high_F","I_HMG_01_A_F","O_static_AA_F","O_static_AT_F","O_Mortar_01_F","O_GMG_01_F","O_GMG_01_high_F","O_GMG_01_A_F","O_HMG_01_F","O_HMG_01_high_F","O_HMG_01_A_F","B_static_AA_F","B_static_AT_F","B_Mortar_01_F","B_GMG_01_F","B_GMG_01_high_F","B_GMG_01_A_F","B_HMG_01_F","B_HMG_01_high_F","B_HMG_01_A_F"];
 
-OT_miscables = ["ACE_Wheel","ACE_Track",OT_item_Workbench,"Land_PortableLight_double_F","Land_PortableLight_single_F","Land_Camping_Light_F","Land_PortableHelipadLight_01_F","PortableHelipadLight_01_blue_F",
+OT_miscables = ["ACE_Wheel","ACE_Track","Land_PortableLight_double_F","Land_PortableLight_single_F","Land_Camping_Light_F","Land_PortableHelipadLight_01_F","PortableHelipadLight_01_blue_F",
 "PortableHelipadLight_01_green_F","PortableHelipadLight_01_red_F","PortableHelipadLight_01_white_F","PortableHelipadLight_01_yellow_F","Land_Campfire_F","ArrowDesk_L_F",
 "ArrowDesk_R_F","ArrowMarker_L_F","ArrowMarker_R_F","Pole_F","Land_RedWhitePole_F","RoadBarrier_F","RoadBarrier_small_F","RoadCone_F","RoadCone_L_F","Land_VergePost_01_F",
 "TapeSign_F","Land_LampDecor_F","Land_WheelChock_01_F","Land_Sleeping_bag_F","Land_Sleeping_bag_blue_F","Land_WoodenLog_F","FlagChecked_F","FlagSmall_F","Land_LandMark_F","Land_Bollard_01_F"];
@@ -980,7 +961,7 @@ OT_Buildables = [
 		["Land_WeldingTrolley_01_F",[-3.53163,1.73366,0],87.0816,1,0,[],"","",true,false],
 		["Land_ToolTrolley_02_F",[-3.47775,3.5155,0],331.186,1,0,[],"","",true,false]
 	],"OT_fnc_initWorkshop",true,"Attach weapons to vehicles"],
-	["House",2000,["Land_House_Small_06_F","Land_House_Small_02_F","Land_House_Small_03_F","Land_GarageShelter_01_F","Land_Slum_04_F"],"",false,"4 walls, a roof, && if you're lucky a door that opens."],
+	["House",1100,["Land_House_Small_06_F","Land_House_Small_02_F","Land_House_Small_03_F","Land_GarageShelter_01_F","Land_Slum_04_F"],"",false,"4 walls, a roof, && if you're lucky a door that opens."],
 	["Police Station",2500,[OT_policeStation],"OT_fnc_initPoliceStation",false,"Allows hiring of policeman to raise stability in a town && keep the peace. Comes with 2 units."],
 	["Warehouse",4000,[OT_warehouse],"OT_fnc_initWarehouse",false,"A house that you put wares in."],
 	["Refugee Camp",600,[OT_refugeeCamp],"",false,"Can recruit civilians here without needing to chase them down"],

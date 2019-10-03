@@ -84,22 +84,38 @@ private _getprice = {
     [_price,_wood,_steel,_plastic];
 };
 
+// ACRE Radios to add to the menu
+private _ACRE_radioClasses = [
+	configFile >> "CfgWeapons" >> "ACRE_PRC117F",
+	configFile >> "CfgWeapons" >> "ACRE_PRC343",
+	configFile >> "CfgWeapons" >> "ACRE_PRC148",
+	configFile >> "CfgWeapons" >> "ACRE_PRC152"
+];
+
 {
     private _cls = configName _x;
     private _name = getText (_x >> "displayName");
     private _desc = getText (_x >> "descriptionShort");
-
+	private _configPathX = _x;
     private _categorized = false;
     private _primaryCategory = "";
     {
         _x params ["_category","_types"];
         {
-            if((_cls find _x > -1) || (_name find _x > -1) || (_desc find _x > -1)) exitWith {
+           if(((_x select [0,1]) == "@" && (_x select [1,(count _x) - 1]) isEqualTo _cls) || ((_cls find _x > -1) || (_name find _x > -1) || (_desc find _x > -1))) exitWith {
                 [_cls,_category] call _categorize;
                 _categorized = true;
                 if(_category != "General") then {
                     _primaryCategory = _category;
                 };
+
+		        private _childClasses = [];
+        if (_cls isKindOf ["ACRE_BaseRadio",configFile >> "CfgWeapons"]) then {
+            _childClasses = [_configPathX];
+        } else {
+            _childClasses = (format ["inheritsFrom _x isEqualTo (configFile >> ""CfgWeapons"" >> ""%1"")",_cls] configClasses ( configFile >> "CfgWeapons" ));
+        };
+
                 {
                     private _c = configName _x;
                     [_c,_category] call _categorize;
@@ -115,7 +131,8 @@ private _getprice = {
                     if(isServer && isNil {cost getVariable _c}) then {
                         cost setVariable [_c,[_x,_primaryCategory] call _getprice,true];
                     };
-                }foreach(format ["inheritsFrom _x isEqualTo (configFile >> ""CfgWeapons"" >> ""%1"")",_cls] configClasses ( configFile >> "CfgWeapons" ));
+
+                }foreach _childClasses;
             };
         }foreach(_types);
     }foreach(OT_itemCategoryDefinitions);
@@ -127,7 +144,11 @@ private _getprice = {
     if(_categorized) then {
         OT_allItems pushback _cls;
     };
-}foreach("(inheritsFrom _x in [configFile >> ""CfgWeapons"" >> ""Binocular"",configFile >> ""CfgWeapons"" >> ""ItemCore"",configFile >> ""CfgWeapons"" >> ""ACE_ItemCore""])" configClasses ( configFile >> "CfgWeapons" ));
+}foreach (("(inheritsFrom _x in [
+	configFile >> ""CfgWeapons"" >> ""Binocular"",
+	configFile >> ""CfgWeapons"" >> ""ItemCore"",
+	configFile >> ""CfgWeapons"" >> ""ACE_ItemCore""
+])" configClasses ( configFile >> "CfgWeapons" )) + _ACRE_radioClasses);
 
 //add Bags
 {
