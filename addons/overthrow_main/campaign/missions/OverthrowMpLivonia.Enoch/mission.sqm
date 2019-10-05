@@ -8,7 +8,7 @@ class EditorData
 	toggles=521;
 	class ItemIDProvider
 	{
-		nextID=2206;
+		nextID=2207;
 	};
 	class MarkerIDProvider
 	{
@@ -16,14 +16,14 @@ class EditorData
 	};
 	class LayerIndexProvider
 	{
-		nextID=374;
+		nextID=375;
 	};
 	class Camera
 	{
-		pos[]={4527.2485,253.72289,6808.3579};
-		dir[]={-0.08287137,-0.57585818,-0.81341165};
-		up[]={-0.058368109,0.81752545,-0.57290262};
-		aside[]={-0.99490637,-1.0354779e-007,0.10135975};
+		pos[]={1318.5959,88.508736,7645.25};
+		dir[]={-0.80020642,-0.45053345,0.39606404};
+		up[]={-0.40382743,0.89271522,0.19987553};
+		aside[]={0.443625,6.5796485e-007,0.89630449};
 	};
 };
 binarizationWanted=0;
@@ -60,13 +60,14 @@ addons[]=
 	"A3_Structures_F_Enoch_Military_Radar",
 	"A3_Structures_F_Enoch_Military_Training",
 	"A3_Structures_F_Ind_Transmitter_Tower",
-	"A3_Structures_F_Enoch_Civilian_Sheds"
+	"A3_Structures_F_Enoch_Civilian_Sheds",
+	"A3_Structures_F_Exp_Industrial_SugarCaneFactory_01"
 };
 class AddonsMetaData
 {
 	class List
 	{
-		items=28;
+		items=29;
 		class Item0
 		{
 			className="A3_Ui_F";
@@ -260,6 +261,13 @@ class AddonsMetaData
 		{
 			className="A3_Structures_F_Enoch_Civilian";
 			name="Arma 3 Enoch - Civilian Buildings";
+			author="Bohemia Interactive";
+			url="https://www.arma3.com";
+		};
+		class Item28
+		{
+			className="A3_Structures_F_Exp_Industrial";
+			name="Arma 3 Apex - Industrial Structures";
 			author="Bohemia Interactive";
 			url="https://www.arma3.com";
 		};
@@ -717,7 +725,7 @@ class Mission
 	};
 	class Entities
 	{
-		items=58;
+		items=59;
 		class Item0
 		{
 			dataType="Layer";
@@ -5092,6 +5100,23 @@ class Mission
 			id=2205;
 			type="Land_Cargo_Patrol_V4_F";
 			atlOffset=1.5258789e-005;
+		};
+		class Item58
+		{
+			dataType="Object";
+			class PositionInfo
+			{
+				position[]={1274.2429,14.012308,7682.5972};
+				angles[]={0,1.2068496,0};
+			};
+			side="Empty";
+			flags=5;
+			class Attributes
+			{
+			};
+			id=2206;
+			type="Land_SCF_01_heap_sugarcane_F";
+			atlOffset=5.7220459e-006;
 		};
 	};
 	class Connections
