@@ -92,4 +92,10 @@ class Params {
         texts[] = {"None", "Players Only", "All"};
         default = 1;
     };
+	class ot_armedres {
+        title = "Count Unarmed Resistance Members Towards QRF Missions";
+        values[] = {0, 1};
+        texts[] = {"Yes", "No"};
+        default = 0;
+    };
 };

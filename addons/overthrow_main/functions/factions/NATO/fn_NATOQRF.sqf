@@ -220,11 +220,21 @@ while {sleep 5; !_over} do {
 			if((side _x isEqualTo west) && (alive _x)) then {
 				_alive = _alive + 1;
 			};
-			if((side _x isEqualTo resistance || captive _x) && (alive _x) && !(_x getvariable ["ace_isunconscious",false])) then {
-				if(isPlayer _x) then {
-					_enemy = _enemy + 2;
-				} else {
-					_enemy = _enemy + 1;
+			if ((["ot_armedres", 0] call BIS_fnc_getParamValue) == 1) then {
+				if((side _x isEqualTo resistance || captive _x) && (_x call OT_fnc_hasWeaponEquipped) && (alive _x) && !(_x getvariable ["ace_isunconscious",false])) then {
+					if(isPlayer _x) then {
+						_enemy = _enemy + 2;
+					} else {
+						_enemy = _enemy + 1;
+					};
+				};
+			}else{
+1				if((side _x isEqualTo resistance || captive _x) && (alive _x) && !(_x getvariable ["ace_isunconscious",false])) then {
+					if(isPlayer _x) then {
+						_enemy = _enemy + 2;
+					} else {
+						_enemy = _enemy + 1;
+					};
 				};
 			};
 		};
