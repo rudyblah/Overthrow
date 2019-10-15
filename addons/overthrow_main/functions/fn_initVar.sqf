@@ -1,4 +1,5 @@
 //VCOM AI, huge credits to Genesis, without VCOM this campaign would be so much less
+OT_legal = ["ACE_FakePrimaryWeapon",""];
 
 OT_ACEremoveAction = [
 	"OT_Remove",

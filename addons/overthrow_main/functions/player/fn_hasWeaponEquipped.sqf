@@ -1,1 +1,1 @@
-!([secondaryWeapon _this,handgunWeapon _this] isEqualTo ["",""]) || !(primaryWeapon _this in ["ACE_FakePrimaryWeapon",""])
+!(secondaryWeapon _this in OT_legal) || !(handgunWeapon _this in OT_legal) || !(primaryWeapon _this in OT_legal)
