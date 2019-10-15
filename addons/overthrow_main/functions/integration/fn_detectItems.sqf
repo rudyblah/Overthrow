@@ -120,14 +120,6 @@ private _ACRE_radioClasses = [
                     private _c = configName _x;
                     [_c,_category] call _categorize;
 
-                    private _craftable = getNumber ( _x >> "ot_craftable" );
-
-                    if(_craftable > 0) then {
-                        private _recipe = call compileFinal getText (_x >> "ot_craftRecipe");
-                        private _qty = getNumber ( _x >> "ot_craftQuantity" );
-                        OT_craftableItems pushback [configName _x,_recipe,_qty];
-                    };
-
                     if(isServer && isNil {cost getVariable _c}) then {
                         cost setVariable [_c,[_x,_primaryCategory] call _getprice,true];
                     };
@@ -164,3 +156,10 @@ private _ACRE_radioClasses = [
     private _qty = getNumber ( _x >> "ot_craftQuantity" );
     OT_craftableItems pushback [_cls,_recipe,_qty];
 }foreach("getNumber (_x >> ""ot_craftable"") isEqualTo 1" configClasses ( configFile >> "CfgMagazines" ));
+//add craftable weapons
+{
+    private _cls = configName _x;
+    private _recipe = call compileFinal getText (_x >> "ot_craftRecipe");
+    private _qty = getNumber ( _x >> "ot_craftQuantity" );
+    OT_craftableItems pushback [_cls,_recipe,_qty];
+}foreach("getNumber (_x >> ""ot_craftable"") isEqualTo 1" configClasses ( configFile >> "CfgWeapons" ));
