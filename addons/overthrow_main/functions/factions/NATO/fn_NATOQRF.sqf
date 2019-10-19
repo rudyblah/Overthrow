@@ -229,7 +229,7 @@ while {sleep 5; !_over} do {
 					};
 				};
 			}else{
-1				if((side _x isEqualTo resistance || captive _x) && (alive _x) && !(_x getvariable ["ace_isunconscious",false])) then {
+				if((side _x isEqualTo resistance || captive _x) && (alive _x) && !(_x getvariable ["ace_isunconscious",false])) then {
 					if(isPlayer _x) then {
 						_enemy = _enemy + 2;
 					} else {
